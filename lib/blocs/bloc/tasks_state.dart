@@ -1,6 +1,5 @@
 part of 'tasks_bloc.dart';
 
-
 class TasksState extends Equatable{
   final List<Task> allTasks;
   const TasksState({
@@ -9,5 +8,6 @@ class TasksState extends Equatable{
 
   @override
   List<Object> get props => [allTasks];
+
 }
 

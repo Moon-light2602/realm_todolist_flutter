@@ -40,4 +40,5 @@ class Task extends Equatable{
     isDone,
     isDeleted,
   ];
+
 }
