@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:realm/realm.dart';
 import 'package:realm_todolist_flutter/models/task.dart';
+import 'package:realm_todolist_flutter/repository/realm_database.dart';
 import 'package:realm_todolist_flutter/services/app_router.dart';
 import 'blocs/bloc_exports.dart';
 import 'screens/homepage.dart';
@@ -21,9 +22,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => TasksBloc()
-        ..add(AddTask(
-            task: Task(''))),
+      create: (context) => TasksBloc(RealmDatabase()),
       child: MaterialApp(
         title: 'Flutter Demo',
         home: const HomePage(),

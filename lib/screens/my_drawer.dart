@@ -9,58 +9,46 @@ class MyDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              color: Colors.orangeAccent,
+    return SafeArea(
+      child: Drawer(
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+              color: Colors.grey,
+              child: Text(
+                'Task Drawer',
+                style: Theme.of(context).textTheme.headline5,
+              ),
             ),
-            child: Column(
-              children: [
-                Image.asset(
-                  'assets/logo.png',
-                  height: 90,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const Text('TO-DOs'),
-              ],
+            BlocBuilder<TasksBloc, TasksState>(
+                builder: (context, state) {
+                  return GestureDetector(
+                    onTap: () => Navigator.of(context).pushNamed(HomePage.id),
+                    child: const ListTile(
+                      leading: Icon(Icons.folder_special),
+                      title: Text('My Tasks'),
+                      trailing: Text('0'),
+                    ),
+                  );
+                }
             ),
-          ),
-          BlocBuilder<TasksBloc, TasksState>(
-            builder: (context, state) {
-              return GestureDetector(
-                onTap: () => Navigator.of(context).pushNamed(HomePage.id),
-                child:
-                ListTile(
-                  leading: const Icon(Icons.list_outlined),
-                  title: const Text('TO-DO List'),
-                  trailing: Text('${state.allTasks.length}'),
-                ),
-              );
-            },
-          ),
-          const Divider(),
-          BlocBuilder<TasksBloc, TasksState>(
-            builder: (context, state) {
-              return GestureDetector(
-                onTap: () => Navigator.of(context).pushNamed(RecycleBin.id),
-                child:
-                ListTile(
-                  leading: const Icon(Icons.delete),
-                  title: const Text('Recycle Bin'),
-                  trailing: Text('${state.removedTasks.length}'),
-                ),
-              );
-            },
-          ),
-        ],
+            BlocBuilder<TasksBloc, TasksState>(
+                builder: (context, state) {
+                  return GestureDetector(
+                    onTap: () => Navigator.of(context).pushNamed(RecycleBin.id),
+                    child: const ListTile(
+                      leading: Icon(Icons.delete),
+                      title: Text('Recycle Bin'),
+                      trailing: Text('0'),
+                    ),
+                  );
+                }
+            ),
+          ],
+        ),
       ),
     );
   }
-
-
 }

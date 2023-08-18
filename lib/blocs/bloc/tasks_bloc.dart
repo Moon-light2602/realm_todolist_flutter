@@ -1,59 +1,55 @@
+import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:realm/realm.dart';
 
 import '../../models/task.dart';
-import '../bloc_exports.dart';
-
+import '../../repository/realm_database.dart';
 part 'tasks_event.dart';
 part 'tasks_state.dart';
-
 class TasksBloc extends Bloc<TasksEvent, TasksState> {
-  TasksBloc() : super(const TasksState()) {
+  RealmDatabase db = RealmDatabase();
+
+  TasksBloc(this.db): super(TaskLoadedState(allTasks: db.getAllTask())) {
+    on<LoadTaskEvent>(_onLoadTask);
     on<AddTask>(_onAddTask);
     on<UpdateTask>(_onUpdateTask);
     on<DeleteTask>(_onDeleteTask);
-    on<RemoveTask>(_onRemoveTask);
+    //on<RemoveTask>(_onRemoveTask);
   }
 
-  void _onAddTask(AddTask event, Emitter<TasksState> emit){
-    final state = this.state;
-    emit(TasksState(
-      allTasks: List.from(state.allTasks)..add(event.task),
-      removedTasks: state.removedTasks,
-    ));
-  }
-
-  void _onUpdateTask(UpdateTask event, Emitter<TasksState> emit){
-    final state = this.state;
-    final task = event.task;
-    final int index = state.allTasks.indexOf(task);
-
-    List<Task> allTasks = List.from(state.allTasks)..remove(task);
-    task.isDone == false
-      ? allTasks.insert(index, task.copyWidth(isDone: true))
-        : allTasks.insert(index, task.copyWidth(isDone: false));
-
-    emit(TasksState(allTasks: allTasks, removedTasks: state.removedTasks));
-  }
-
-  void _onDeleteTask(DeleteTask event, Emitter<TasksState> emit){
-    final state = this.state;
-    emit(TasksState(
-      allTasks: List.from(state.allTasks)..remove(event.task),
-      removedTasks: List.from(state.removedTasks)..remove(event.task),
-    ));
-
-  }
-
-
-  void _onRemoveTask(RemoveTask event, Emitter<TasksState> emit){
-    final state = this.state;
-    emit(TasksState(
-      allTasks: List.from(state.allTasks)..remove(event.task),
-      removedTasks: List.from(state.removedTasks)..add(event.task.copyWidth(isDeleted: true)),
-    ));
-
-  }
-
-
+  void _onLoadTask(event, emit) {
+    emit(TaskLoadingState());
+    try {
+      final tasks = db.getAllTask();
+      emit(TaskLoadedState(allTasks: tasks));
+    } catch (e) {
+      emit(TaskErrorState(e.toString()));
     }
+  }
+
+  void _onAddTask(AddTask event, Emitter<TasksState> emit) {
+    var task = event.task;
+    db.addTask(task);
+    var tasks = db.getAllTask();
+
+    emit(TaskLoadedState(
+      allTasks: tasks,
+    ));
+  }
+
+  void _onUpdateTask(UpdateTask event, Emitter<TasksState> emit) {
+    final task = event.task;
+    db.updateTask(task);
+    emit(TaskLoadedState(
+      allTasks: db.getAllTask(),
+    ));
+  }
+
+  void _onDeleteTask(DeleteTask event, Emitter<TasksState> emit) {
+    db.deleteTask(event.task);
+    emit(TaskLoadedState(
+      allTasks: db.getAllTask(),
+    ));
+  }
+
+}
